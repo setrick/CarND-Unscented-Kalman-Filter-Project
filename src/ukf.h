@@ -74,6 +74,11 @@ public:
   ///* the current NIS for laser
   double NIS_laser_;
 
+  ///*set measurement dimension radar
+  int n_z_;
+  ///* Matrix with sigma points in measurement space
+  MatrixXd Zsig_;
+
   /**
    * Constructor
    */
