@@ -21,17 +21,17 @@ UKF::UKF() {
 
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 2;
+  std_a_ = 0.9;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 1;
+  std_yawdd_ = 0.35;
 
 
   // Laser measurement noise standard deviation position1 in m
-  std_laspx_ = 0.02;
+  std_laspx_ = 0.15;
 
   // Laser measurement noise standard deviation position2 in m
-  std_laspy_ = 0.02;
+  std_laspy_ = 0.15;
 
 
 
@@ -39,10 +39,10 @@ UKF::UKF() {
   std_radr_ = 0.3;
 
   // Radar measurement noise standard deviation angle in rad
-  std_radphi_ = 0.005;
+  std_radphi_ = 0.03;
 
   // Radar measurement noise standard deviation radius change in m/s
-  std_radrd_ = 0.5;
+  std_radrd_ = 0.3;
 
   /**
   TODO:
@@ -248,11 +248,7 @@ void UKF::Prediction(double delta_t) {
 
   //predicted state mean
 
-  x_.fill(0.0);
-  for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
-    x_ = x_+ weights_(i) * Xsig_pred_.col(i);
-  }
-
+  x_ = Xsig_pred_ * weights_;
   //predicted state covariance matrix
 
   P_.fill(0.0);
@@ -292,9 +288,9 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   VectorXd z_pred = H_laser * x_;
   VectorXd z_diff = z - z_pred;
   MatrixXd Ht = H_laser.transpose();
-  MatrixXd S = H_laser * P_ * Ht + R_laser;
-  MatrixXd Si = S.inverse();
   MatrixXd PHt = P_ * Ht;
+  MatrixXd S = H_laser * PHt + R_laser;
+  MatrixXd Si = S.inverse();
   MatrixXd K = PHt * Si;
 
   //new estimate
@@ -330,7 +326,17 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
       // measurement model
       Zsig_(0,i) = sqrt(p_x*p_x + p_y*p_y);                        //r
-      Zsig_(1,i) = atan2(p_y,p_x);                                 //phi
+
+      // protecting against division by 0 && undefined atan
+      if(fabs(p_x) < 0.0001){
+        p_x = 0.0001;
+      }
+      if(fabs(p_y) < 0.0001){
+        p_y = 0.0001;
+      }
+
+      Zsig_(1,i) = atan2(p_y,p_x);
+                                       //phi
       Zsig_(2,i) = (p_x*v1 + p_y*v2 ) / sqrt(p_x*p_x + p_y*p_y);   //r_dot
     }
 

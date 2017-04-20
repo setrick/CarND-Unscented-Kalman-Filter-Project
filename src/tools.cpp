@@ -17,7 +17,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   */
 
   VectorXd rmse(estimations[0].array().size());
-	rmse.fill(0.0d);
+	rmse.fill(0.0);
 
 	// check the validity of the following inputs:
 	//  * the estimation vector size should not be zero
