@@ -21,7 +21,7 @@ UKF::UKF() {
 
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 1;
+  std_a_ = 2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
   std_yawdd_ = 1;
@@ -36,7 +36,7 @@ UKF::UKF() {
 
 
   // Radar measurement noise standard deviation radius in m
-  std_radr_ = 0.9;
+  std_radr_ = 0.3;
 
   // Radar measurement noise standard deviation angle in rad
   std_radphi_ = 0.005;
@@ -105,11 +105,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
     if(fabs(px) < 0.0001){
       px = 0.0001;
-      P_(0,0) = 500;
     }
     if(fabs(py) < 0.0001){
       py = 0.0001;
-      P_(1,1) = 500;
     }
 
     x_ << px, py, 0, 0, 0;
